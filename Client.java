@@ -1,5 +1,3 @@
-
-
 // Client.java
 
 import java.io.*;
@@ -156,60 +154,20 @@ public class Client {
                     // il client continua l'esecuzione riprendendo dall'inizio del ciclo
                     continue;
                 }
-                /*try{
-                    inFile = new FileInputStream(dirname);
-                }*/
-
-                /*
-                 * abbiamo gia' verificato che esiste, a meno di inconvenienti, es.
-                 * cancellazione concorrente del file da parte di un altro processo, non
-                 * dovremmo mai incorrere in questa eccezione.
-                 */
-
-
-                // ricezione esito
-                String esito;
-                try {
-                    esito = inSock.readUTF();
-                    System.out.println("Esito trasmissione: " + esito);
-                    // chiudo la socket in downstream
-                    socket.shutdownInput();
-                    System.out.println("Terminata la chiusura della socket: " + socket);
-                } catch (SocketTimeoutException ste) {
-                    System.out.println("Timeout scattato: ");
-                    ste.printStackTrace();
-                    socket.close();
-                    System.out
-                            .print("\n^D(Unix)/^Z(Win)+invio per uscire, oppure immetti nome file: ");
-                    // il client continua l'esecuzione riprendendo dall'inizio del ciclo
-                    continue;
-                } catch (Exception e) {
-                    System.out
-                            .println("Problemi nella ricezione dell'esito, i seguenti: ");
-                    e.printStackTrace();
-                    socket.close();
-                    System.out
-                            .print("\n^D(Unix)/^Z(Win)+invio per uscire, oppure immetti nome file: ");
-                    continue;
-                    // il client continua l'esecuzione riprendendo dall'inizio del ciclo
-                }
-
-                // tutto ok, pronto per nuova richiesta
-                System.out
-                        .print("\n^D(Unix)/^Z(Win)+invio per uscire, oppure immetti nome file: ");
 
             }
+            //chiudo la socket fuori dal while, poichè non arrivano più nomi di directory
             socket.close();
             System.out.println("PutFileClient: termino...");
-        }
-        // qui catturo le eccezioni non catturate all'interno del while
-        // quali per esempio la caduta della connessione con il server
-        // in seguito alle quali il client termina l'esecuzione
-        catch (Exception e) {
+
+            // qui catturo le eccezioni non catturate all'interno del while
+            // quali per esempio la caduta della connessione con il server
+            // in seguito alle quali il client termina l'esecuzione
+        } catch (Exception e) {
             System.err.println("Errore irreversibile, il seguente: ");
             e.printStackTrace();
             System.err.println("Chiudo!");
             System.exit(3);
         }
     } // main
-} 
+}
