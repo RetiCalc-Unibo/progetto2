@@ -6,7 +6,6 @@ import java.net.SocketTimeoutException;
 public class Client {
 
     public static void main(String[] args) throws IOException {
-
         InetAddress addr = null;
         int port = -1;
         long threshold = 0;
@@ -21,7 +20,7 @@ public class Client {
                 System.exit(1);
             }
         } catch (Exception e) {
-            System.out.println("Problemi, i seguenti: ");
+            System.out.println("Sono stati riscontrati i seguenti problemi: ");
             e.printStackTrace();
             System.out.println("Usage: java Client serverIp serverPort threshold>0");
             System.exit(2);
@@ -43,8 +42,8 @@ public class Client {
             while ((dirname = stdIn.readLine()) != null) {
                 // Se la directory esiste, creo la socket
                 if ((directory = new File(dirname)).isDirectory()) {
-                    // Creazione socket
-                    try {
+                    
+                    try { // Creazione socket
                         socket = new Socket(addr, port);
                         socket.setSoTimeout(30000);
                         System.out.println("Creata la socket: " + socket);
