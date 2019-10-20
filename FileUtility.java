@@ -1,20 +1,27 @@
+/* FileUtility.java */
 import java.io.*;
 
 public class FileUtility {
-	static protected void trasferisci_a_byte_file_binario(DataInputStream src, DataOutputStream dest) throws IOException {
-		int buffer;
 
-		// ciclo di lettura da sorgente e scrittura su destinazione
-		// N.B.: la funzione consuma l'EOF
-	    try {
-	    	while ((buffer = src.read()) >= 0) {
-	    		dest.write(buffer);
-	    	}
+    /**
+     * Nota: sorgente e destinazione devono essere correttamente aperti e chiusi
+     * da chi invoca questa funzione.
+     */
+    static protected void trasferisci_a_byte_file_binario(DataInputStream src,
+                                                          DataOutputStream dest, long length) throws IOException {
 
-	    	dest.flush();
-	    } catch (EOFException e) {
-	    	System.out.println("Sono stati riscontrati i seguenti problemi: ");
-	    	e.printStackTrace();
-	    }
-	}
+        // ciclo di lettura da sorgente e scrittura su destinazione
+        int buffer = 0;
+        try {
+            // esco dal ciclo all lettura di un valore negativo -> EOF
+            // N.B.: la funzione consuma l'EOF
+            while ((buffer = src.read()) == length) {
+                dest.write(buffer);
+            }
+            dest.flush();
+        } catch (EOFException e) {
+            System.out.println("Problemi, i seguenti: ");
+            e.printStackTrace();
+        }
+    }
 }
