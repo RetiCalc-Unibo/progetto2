@@ -1,5 +1,9 @@
 /* FileUtility.java */
-import java.io.*;
+
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.EOFException;
+import java.io.IOException;
 
 public class FileUtility {
 
@@ -10,13 +14,18 @@ public class FileUtility {
     static protected void trasferisci_a_byte_file_binario(DataInputStream src,
                                                           DataOutputStream dest, long length) throws IOException {
 
-        // ciclo di lettura da sorgente e scrittura su destinazione
+
+        int numByteRead = 0;
         int buffer = 0;
         try {
-            // esco dal ciclo all lettura di un valore negativo -> EOF
-            // N.B.: la funzione consuma l'EOF
-            while ((buffer = src.read()) == length) {
+            // esco dal ciclo fino a quando non ho letto gli n byte che compongono il file
+            while (numByteRead < length) {
+                //leggo un byte dalla DataInputStream
+                buffer = src.read();
+                //scrivo quel byte sul DataOutputStream
                 dest.write(buffer);
+                //incremento il numero di byte letti
+                numByteRead++;
             }
             dest.flush();
         } catch (EOFException e) {

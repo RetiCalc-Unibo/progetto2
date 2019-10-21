@@ -26,7 +26,6 @@ class ServerThread extends Thread {
 
         String nomeFile = null;
         try {
-                System.out
             // creazione stream di input e out da socket
             //NB getInputStream e getOutputStream possono sollevare IOException
             inSock = new DataInputStream(clientSocket.getInputStream());
