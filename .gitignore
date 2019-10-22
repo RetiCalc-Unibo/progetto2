@@ -1,3 +1,5 @@
 
 Client.class
 FileUtility.class
+Server.class
+ServerThread.class
