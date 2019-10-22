@@ -24,7 +24,7 @@ class ServerThread extends Thread {
         DataInputStream inSock;
         DataOutputStream outSock;
 
-        String nomeFile = null;
+        String fileName = null;
         try {
             // creazione stream di input e out da socket
             //NB getInputStream e getOutputStream possono sollevare IOException
@@ -41,35 +41,37 @@ class ServerThread extends Thread {
         try {
             try {
                 //ciclo while che legge fino a quando non vengono più mandati i nomiFile attraverso la socket
-                //(per esempio quando si preme ctrl+D e quindi non ci sono più file delle cartelle da leggere)
-                while ((nomeFile = inSock.readUTF()) != null) {
+                //(per esempio quando si preme ctrl+D e quindi non ci sono più file delle cartelle da leggere, quindi socket chiusa)
+                while (true) {
+                    fileName = inSock.readUTF();
                     FileOutputStream outFile = null;
-                    String esito = null;
+                    String result = null;
 
-                    File curFile = new File(nomeFile);
-                    //esito = "salta":
+                    File curFile = new File(fileName);
+                    //result = "salta":
                     // se il file esiste allora il server deve avvertire il cliente di saltare al file successivo
-                    //esito = "attiva":
+                    //result = "attiva":
                     //occorre che il server chieda di inviare il resto del file (dimensione e dati)
                     if (curFile.exists()) {
-                        esito = "salta";
-                    } else esito = "attiva";
-                    outFile = new FileOutputStream(nomeFile);
+                        result = "salta";
+                        outSock.writeUTF(result);
+                    } else {
+                        result = "attiva";
+                        outFile = new FileOutputStream(fileName);
 
-                    long fileLength = 0;
+                        long fileLength = 0;
 
-                    outSock.writeUTF(esito);
-                    //svuoto il buffer per performance migliori
-                    outSock.flush();
-                    //nel caso di attiva salvo una copia del file nel server
-                    if (esito.equals("attiva")) {
+                        outSock.writeUTF(result);
+                        //svuoto il buffer per performance migliori
+                        outSock.flush();
+                        //nel caso di attiva salvo una copia del file nel server
                         fileLength = inSock.readLong();
                         //ciclo di ricezione dal client, salvataggio file e stamapa a video
 
-                        System.out.println("Ricevo il file " + nomeFile);
+                        System.out.println("Ricevo il file " + fileName);
                         FileUtility.trasferisci_a_byte_file_binario(inSock,
                                 new DataOutputStream(outFile), fileLength);
-                        System.out.println("Ricezione del file " + nomeFile + " e copia nel server terminata\n");
+                        System.out.println("Ricezione del file " + fileName + " e copia nel server terminata\n");
                         // chiusura file
                         // NB metodo flush inutile, poichè chiudo il canale di OutputStream
                         outFile.close();
@@ -81,12 +83,10 @@ class ServerThread extends Thread {
                 System.out.println("Raggiunta la fine delle ricezioni, chiudo...");
                 clientSocket.close();
                 System.out.println("Server: termino...");
-                System.exit(0);
             } catch (SocketTimeoutException ste) {
                 System.out.println("Timeout scattato: ");
                 ste.printStackTrace();
                 clientSocket.close();
-                System.exit(1);
             } catch (Exception e) {
                 System.out.println("Problemi, i seguenti : ");
                 e.printStackTrace();
@@ -176,7 +176,7 @@ public class Server {
                     System.err.println("Server: problemi nel server thread: "
                             + e.getMessage());
                     e.printStackTrace();
-                    continue;
+
                 }
 
             } // while
