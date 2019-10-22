@@ -66,10 +66,10 @@ class ServerThread extends Thread {
                         fileLength = inSock.readLong();
                         //ciclo di ricezione dal client, salvataggio file e stamapa a video
 
-                        System.out.println("Ricevo il file " + nomeFile + ": \n");
+                        System.out.println("Ricevo il file " + nomeFile);
                         FileUtility.trasferisci_a_byte_file_binario(inSock,
                                 new DataOutputStream(outFile), fileLength);
-                        System.out.println("\nRicezione del file " + nomeFile + " e copia nel server terminata\n");
+                        System.out.println("Ricezione del file " + nomeFile + " e copia nel server terminata\n");
                         // chiusura file
                         // NB metodo flush inutile, poichè chiudo il canale di OutputStream
                         outFile.close();
