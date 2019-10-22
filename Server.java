@@ -1,21 +1,14 @@
-// Server Concorrente
-
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 
-// Thread lanciato per ogni richiesta accettata
-// versione per il trasferimento di file binari
+// Viene lanciato un thread per ogni richiesta accettata
+// Versione per il trasferimento di file binari
 class ServerThread extends Thread {
 
     private Socket clientSocket = null;
 
-    /**
-     * Constructor
-     *
-     * @param clientSocket
-     */
     public ServerThread(Socket clientSocket) {
         this.clientSocket = clientSocket;
     }
@@ -23,62 +16,51 @@ class ServerThread extends Thread {
     public void run() {
         DataInputStream inSock;
         DataOutputStream outSock;
-
         String fileName = null;
+
+        // Creazione stream di input e out da socket
         try {
-            // creazione stream di input e out da socket
-            //NB getInputStream e getOutputStream possono sollevare IOException
+            // Nota: getInputStream e getOutputStream possono sollevare IOException
             inSock = new DataInputStream(clientSocket.getInputStream());
             outSock = new DataOutputStream(clientSocket.getOutputStream());
         } catch (IOException ioe) {
-            System.out
-                    .println("Problemi nella creazione degli stream di input/output "
-                            + "su socket: ");
+            System.out.println("Problemi nella creazione degli stream di input/output " + "su socket: ");
             ioe.printStackTrace();
             return;
         }
 
         try {
             try {
-                //ciclo while che legge fino a quando non vengono più mandati i nomiFile attraverso la socket
-                //(per esempio quando si preme ctrl+D e quindi non ci sono più file delle cartelle da leggere, quindi socket chiusa)
+                // Ciclo while che legge fino a quando non vengono più mandati i nomiFile attraverso la socket
+                // (Per esempio quando si preme CTRL+D e quindi non ci sono più file delle cartelle da leggere, quindi la socket è chiusa)
                 while (true) {
                     fileName = inSock.readUTF();
                     FileOutputStream outFile = null;
                     String result = null;
-
                     File curFile = new File(fileName);
-                    //result = "salta":
-                    // se il file esiste allora il server deve avvertire il cliente di saltare al file successivo
-                    //result = "attiva":
-                    //occorre che il server chieda di inviare il resto del file (dimensione e dati)
+
+                    // Se result = "salta", il file esiste e il server deve avvertire il cliente di saltare al file successivo
+                    // Se result = "attiva", occorre che il server chieda di inviare il resto del file (dimensione e dati)
+
                     if (curFile.exists()) {
                         result = "salta";
                         outSock.writeUTF(result);
                     } else {
                         result = "attiva";
                         outFile = new FileOutputStream(fileName);
-
                         long fileLength = 0;
 
                         outSock.writeUTF(result);
-                        //svuoto il buffer per performance migliori
-                        outSock.flush();
-                        //nel caso di attiva salvo una copia del file nel server
+                        outSock.flush(); // Svuoto il buffer per performance migliori
                         fileLength = inSock.readLong();
-                        //ciclo di ricezione dal client, salvataggio file e stamapa a video
 
                         System.out.println("Ricevo il file " + fileName);
-                        FileUtility.trasferisci_a_byte_file_binario(inSock,
-                                new DataOutputStream(outFile), fileLength);
+                        FileUtility.trasferisci_a_byte_file_binario(inSock, new DataOutputStream(outFile), fileLength);
                         System.out.println("Ricezione del file " + fileName + " e copia nel server terminata\n");
-                        // chiusura file
-                        // NB metodo flush inutile, poichè chiudo il canale di OutputStream
                         outFile.close();
-
                     }
                 }
-                //fine ricezione dei file: EOF
+                // Fine ricezione dei file: EOF
             } catch (EOFException eof) {
                 System.out.println("Raggiunta la fine delle ricezioni, chiudo...");
                 clientSocket.close();
@@ -92,47 +74,43 @@ class ServerThread extends Thread {
                 e.printStackTrace();
                 System.out.println("Chiudo ed esco...");
                 clientSocket.close();
-                System.exit(2);
+                System.exit(1);
             }
         } catch (IOException ioe) {
             System.out.println("Problemi nella chiusura della socket: ");
             ioe.printStackTrace();
             System.out.println("Chiudo ed esco...");
-            System.exit(3);
+            System.exit(2);
         }
     }
-
 }
 
 public class Server {
-    public static final int PORT = 1050; //default port
+    public static final int PORT = 1050; // Default port
 
     public static void main(String[] args) throws IOException {
-
         int port = -1;
 
-        /* controllo argomenti */
+        /* Controllo argomenti */
         try {
             if (args.length == 1) {
                 port = Integer.parseInt(args[0]);
                 if (port < 1024 || port > 65535) {
                     System.out.println("Usage: java LineServer [serverPort>1024]");
-                    System.exit(1);
+                    System.exit(3);
                 }
             } else if (args.length == 0) {
                 port = PORT;
             } else {
-                System.out
-                        .println("Usage: java ServerThread or java ServerThread port");
-                System.exit(1);
+                System.out.println("Usage: java ServerThread or java ServerThread port");
+                System.exit(4);
             }
-        } //try
+        }
         catch (Exception e) {
             System.out.println("Problemi, i seguenti: ");
             e.printStackTrace();
-            System.out
-                    .println("Usage: java ServerThread or java ServerThread port");
-            System.exit(1);
+            System.out.println("Usage: java ServerThread or java ServerThread port");
+            System.exit(5);
         }
 
         ServerSocket serverSocket = null;
@@ -144,51 +122,40 @@ public class Server {
             System.out.println("Server: avviato ");
             System.out.println("Server: creata la server socket: " + serverSocket);
         } catch (Exception e) {
-            System.err
-                    .println("Server: problemi nella creazione della server socket: "
-                            + e.getMessage());
+            System.err.println("Server: problemi nella creazione della server socket: " + e.getMessage());
             e.printStackTrace();
-            System.exit(1);
+            System.exit(6);
         }
 
         try {
-
             while (true) {
                 System.out.println("Server: in attesa di richieste...\n");
 
                 try {
-                    // bloccante fino ad una pervenuta connessione
+                    // Bloccante fino ad una pervenuta connessione
                     clientSocket = serverSocket.accept();
                     clientSocket.setSoTimeout(30000);
                     System.out.println("Server: connessione accettata: " + clientSocket);
                 } catch (Exception e) {
-                    System.err
-                            .println("Server: problemi nella accettazione della connessione: "
-                                    + e.getMessage());
+                    System.err.println("Server: problemi nella accettazione della connessione: " + e.getMessage());
                     e.printStackTrace();
                     continue;
                 }
 
-                // serizio delegato ad un nuovo thread
+                // Servizio delegato ad un nuovo thread
                 try {
                     new ServerThread(clientSocket).start();
                 } catch (Exception e) {
-                    System.err.println("Server: problemi nel server thread: "
-                            + e.getMessage());
+                    System.err.println("Server: problemi nel server thread: " + e.getMessage());
                     e.printStackTrace();
-
                 }
-
-            } // while
+            }
         }
-        // qui catturo le eccezioni non catturate all'interno del while
-        // in seguito alle quali il server termina l'esecuzione
+        // Qui catturo le eccezioni non catturate all'interno del while in seguito alle quali il server termina l'esecuzione
         catch (Exception e) {
             e.printStackTrace();
-            // chiusura di stream e socket
             System.out.println("Server: termino...");
-            System.exit(2);
+            System.exit(7);
         }
-
     }
-} // Server class
+}
