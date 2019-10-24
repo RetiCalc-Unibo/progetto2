@@ -96,20 +96,20 @@ public class Server {
             if (args.length == 1) {
                 port = Integer.parseInt(args[0]);
                 if (port < 1024 || port > 65535) {
-                    System.out.println("Usage: java LineServer [serverPort>1024]");
+                    System.out.println("Usage: java LineServer [1024 < serverPort < 65536]");
                     System.exit(3);
                 }
             } else if (args.length == 0) {
                 port = PORT;
             } else {
-                System.out.println("Usage: java ServerThread or java ServerThread port");
+                System.out.println("Usage: java ServerThread [port]");
                 System.exit(4);
             }
         }
         catch (Exception e) {
             System.out.println("Problemi, i seguenti: ");
             e.printStackTrace();
-            System.out.println("Usage: java ServerThread or java ServerThread port");
+            System.out.println("Usage: java ServerThread [port]");
             System.exit(5);
         }
 

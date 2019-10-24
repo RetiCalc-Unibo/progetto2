@@ -1,0 +1,12 @@
+-- Test Client --
+1) Passato threshold negativo -> Risposta con Eccezione
+2) Passato File per l'invio -> Risposta "Dir non presente"
+3) Passata dir con 3 file dentro -> File inviati correttamente sopra i 50B(passato come arg)
+4) Passata dir&threshold 30 secondi dopo la richiesta di connessione -> Il ServerThread lancia eccezione prima e si chiude -> Client lancia eccezione e si chiude
+5) Passata dir non esistente -> Risposta con errore e richiesta di reinserire una dir
+6) Passata dir già inviata -> Risposta con "File già esistenti"
+ 
+-- Test Server --
+1) Avviato Server senza porta -> Avviato su localhost con porta default 1050
+2) Avviato Server con porta -> Avviato su localhost con porta presa da argomento
+3) Avviato Server con porta > 65535 e porta < 1024 -> Risposta con "Usage corretto .."
