@@ -117,7 +117,7 @@ public class Client {
             System.err.println("Errore! ");
             e.printStackTrace();
             System.err.println("Chiudo!");
-            System.exit(3);
+            System.exit(5);
         }
     }
 }
