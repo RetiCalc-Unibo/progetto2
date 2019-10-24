@@ -44,8 +44,7 @@ public class Client {
         } catch (IOException e) {
             System.out.println("Problemi nella creazione degli stream su socket: ");
             e.printStackTrace();
-            System.out.print("\n^D(Unix)/^Z(Win)+invio per uscire, oppure reinserisci una directory esistente: ");
-
+            System.exit(3);
         }
 
         System.out.print("Client Started.\n\n^D(Unix)/^Z(Win)+invio per uscire, oppure inserisci il nome di una directory esistente: ");
@@ -90,17 +89,11 @@ public class Client {
                                 FileUtility.trasferisci_a_byte_file_binario(new DataInputStream(inFile), outSock, f.length());
                                 inFile.close(); // Chiusura file
                                 System.out.println("Trasmissione di " + f + " terminata ");
-                            } catch (SocketTimeoutException ste) {
-                                System.out.println("Timeout scattato: ");
-                                ste.printStackTrace();
-                                System.out.print("\n^D(Unix)/^Z(Win)+invio per uscire, oppure reinserisci una directory esistente: ");
-                                continue;
                             } catch (Exception e) {
                                 System.out.println("Problemi nell'invio di " + f.getName() + ": ");
                                 e.printStackTrace();
                                 socket.close();
-                                System.out.print("\n^D(Unix)/^Z(Win)+invio per uscire, oppure reinserisci una directory esistente: ");
-                                continue;
+                                System.exit(4);
                             }
                         }
                     }
